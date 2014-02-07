@@ -1,0 +1,58 @@
+<instance xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"  
+		xsi:noNamespaceSchemaLocation = "C:\Develop\java\Frodo2\src\frodo2\algorithms\XCSPschemaJaCoP.xsd">
+	<presentation name="testProblem" maxConstraintArity="2"
+			maximize="false" format="XCSP 2.1_FRODO" />
+
+	<agents nbAgents="2">
+		<agent name="agent001" />
+		<agent name="agent002" />
+	</agents>
+
+	<domains nbDomains="1">
+		<domain name="effort" nbValues="3">30..100</domain>
+		<domain name="type" nbValues="2">1..2</domain>
+		<domain name="mapping" nbValues="2">0..1</domain>
+	</domains>
+
+	<variables nbVariables="6">
+		<variable name="compression1" domain="effort" agent="agent001"/>
+		<variable name="compression2" domain="effort" agent="agent002"/>
+		<variable name="algorithm1" domain="type" agent="agent001"/>
+		<variable name="algorithm2" domain="type" agent="agent002"/>
+		<variable name="mapping1" domain="mapping" agent="agent001"/>
+		<variable name="mapping2" domain="mapping" agent="agent002"/>
+	</variables>
+
+	<functions nbFunctions="1">
+		<function name="quadraticfun" return="int">  
+			<parameters>int m1 int a1 int a2 int c1 int c2</parameters>  
+			<expression>  
+				<functional>if( eq( m1, 1), 
+								if(eq(a1, 1), 
+									add( add( pow( div( c1, 10), 3), 300),
+										 sub( 1500, mul( c1, 6))),
+									add( add( pow( div( c1, 12), 3), 400),
+										 sub( 1500, pow( div( c1, 4), 2)))),
+								if ( eq( a2, 1),
+									add( add( pow( div( c1, 10), 3), 300),
+										 sub( 1500, mul( c1, 6))),
+									add( add( pow( div( c1, 12), 3), 400),
+										 sub( 1500, pow( div( c1, 4), 2)))),
+				</functional>
+			</expression>  
+		</function>
+	</functions>
+
+	<relations nbRelations="1">
+		<relation name="oneismapped" arity="2" nbTuples="2" semantics="supports">
+			0 1 | 1 0
+		</relation>
+	</relations>
+
+	<constraints nbConstraints="8">
+		<constraint name="mappedOnce" arity="2" scope="mapping1 mapping2" reference="oneismapped" />
+		<constraint name="optimalCompression" arity="3" scope="mapping1 algorithm1 algorithm2 compression1 compression2" reference="quadraticfun">
+			<parameters>mapping1 algorithm1 algorithm2 compression1 compression2</parameters>
+		</constraint>
+	</constraints>
+</instance>

@@ -15,10 +15,10 @@ end
 
 neqConstraints = obj.neqConstraints();
 
+nAgents = numel(obj.agentNames);
+
 % From here is just printing the problem .xml file
 fid = fopen(filename, 'w+');
-
-agents = obj.agents.values;
 
 xsdScheme = fullfile(getenv('path_frodo'), 'src\frodo2\algorithms\XCSPschema.xsd');
 
@@ -29,9 +29,9 @@ fprintf(fid, ['<instance xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n
               '                maximize="false" format="XCSP 2.1_FRODO" />\n\n'], xsdScheme, options.name);
 
 % Define the agents
-fprintf(fid, '  <agents nbAgents="%d">\n', numel(agents));
-for i = 1:numel(agents)
-    fprintf(fid, '    <agent name="%s" />\n', agents{i}.name);
+fprintf(fid, '  <agents nbAgents="%d">\n', nAgents);
+for i = 1:nAgents
+    fprintf(fid, '    <agent name="%s" />\n', obj.agentNames{i});
 end
 fprintf(fid, '  </agents>\n\n');
 
@@ -41,9 +41,9 @@ fprintf(fid, '    <domain name="colors" nbValues="%d">1..%d</domain>\n', numel(o
 fprintf(fid, '  </domains>\n\n');
 
 % Assign the variables
-fprintf(fid, '  <variables nbVariables="%d">\n', numel(agents));
-for i = 1:numel(agents)
-    fprintf(fid, '    <variable name="%s" domain="colors" agent="%s"/>\n', agents{i}.variableName, agents{i}.name);
+fprintf(fid, '  <variables nbVariables="%d">\n', nAgents);
+for i = 1:nAgents
+    fprintf(fid, '    <variable name="%s" domain="colors" agent="%s"/>\n', obj.nodeNames{i}, obj.agentNames{i});
 end
 fprintf(fid, '  </variables>\n\n');
 
@@ -58,8 +58,8 @@ fprintf(fid, '  </relations>\n\n');
 % Set the constraints
 fprintf(fid, '  <constraints nbConstraints="%d">\n', size(neqConstraints, 1));
 for i = 1:size(neqConstraints, 1)
-    X = agents{neqConstraints(i, 1)}.variableName;
-    Y = agents{neqConstraints(i, 2)}.variableName;
+    X = obj.nodeNames{neqConstraints(i, 1)};
+    Y = obj.nodeNames{neqConstraints(i, 2)};
     fprintf(fid, '    <constraint name="%s_AND_%s_have_different_colors" arity="2" scope="%s %s" reference="NEQ"/>\n', X, Y, X, Y);
 end
 fprintf(fid, '  </constraints>\n');

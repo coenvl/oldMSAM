@@ -3,7 +3,8 @@ function [a, c] = getAssignments(obj)
 
 a = zeros(1, numel(obj.agentNames));
 for i = 1:numel(obj.agentNames);
-    a(i) = obj.agents(obj.agentNames{i}).currentValue;
+    agent = obj.agents(obj.agentNames{i});
+    a(i) = agent.getVariable().getValue().intValue;
 end
 
 constraints = obj.neqConstraints();

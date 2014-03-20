@@ -23,8 +23,10 @@ solution = solveDCOP(problemFile, solverType, [], timeout);
 assignments = solution.getAssignments();
 
 %Apply the solution
-for a = obj.agents.values
-    a{:}.setValue(assignments.get(a{:}.variableName).doubleValue);
+for a = 1:numel(obj.nodeNames)
+    X = obj.nodeNames{a};
+    value = assignments.get(X).intValue;
+    obj.variables(X).setValue(uint32(value));
 end
 
 obj.show();

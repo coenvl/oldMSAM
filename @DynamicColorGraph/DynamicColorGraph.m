@@ -14,9 +14,10 @@ classdef DynamicColorGraph < handle
         maxsize@double scalar;
         nodeData@double matrix;
         nodeNames@cell;
+        variables@containers.Map scalar;
         
         % The agents
-        agentType@function_handle scalar = @SimpleAgent;
+        agentType@char matrix = 'nl.coenvl.sam.impl.SFBAgent';
         agents@containers.Map scalar;
         agentNames@cell;
     end
@@ -35,6 +36,7 @@ classdef DynamicColorGraph < handle
             obj.maxsize = maxsize;
             obj.nodeData = maxsize .* rand(n, 2);
             obj.nodeNames = cell(1,n);
+            obj.variables = containers.Map('KeyType','char','ValueType','any');
             obj.agents = containers.Map('KeyType','char','ValueType','any');
             obj.agentNames = cell(1,n);
             
@@ -45,9 +47,16 @@ classdef DynamicColorGraph < handle
                 obj.agentNames{i} = agentName;
                 obj.nodeNames{i} = sprintf('node%03d', i);
                 
+                % Create Java Objects
+                agent = feval(obj.agentType, agentName);
+                var = nl.coenvl.sam.IntegerVariable(java.lang.Integer(1), ...
+                    java.lang.Integer(numel(DynamicColorGraph.colors)), ...
+                    obj.nodeNames{i});
+                agent.assignVariable(var);
+                
                 % Store data
-                obj.agents(agentName) = ...
-                    feval(obj.agentType, agentName, obj, i);
+                obj.variables(obj.nodeNames{i}) = var;
+                obj.agents(agentName) = agent;
             end
         end
         
@@ -59,7 +68,7 @@ classdef DynamicColorGraph < handle
 %             numVars = numel(obj.agentNames);
 %         end
         
-        %% Abstract functions
+        %% Functions defined in other files
         c = neqConstraints(obj);
         
         % export the problem as a FRODO xml file
@@ -74,7 +83,7 @@ classdef DynamicColorGraph < handle
         % Solve using FRODO
         solution = solve(obj, problemfile, solverType, timeout);
         
-        % Solve using Agent's DCOP methods
+        % Solve using SAM
         startDCOP(obj);
         
         % Get the current coloring
@@ -91,15 +100,5 @@ classdef DynamicColorGraph < handle
             obj.axesHandle.XLim = [0 obj.maxsize];
             obj.axesHandle.YLim = [0 obj.maxsize];
         end
-    end
-    
-    methods (Hidden)
-        function broadCast(obj, msg)
-            % The order really doesn't matter
-            for agent = obj.agents.values
-                agent{1}.receive(msg);
-            end
-        end
-    end
-    
+    end    
 end

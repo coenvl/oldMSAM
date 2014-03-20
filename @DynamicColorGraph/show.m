@@ -28,8 +28,9 @@ for i = 1:numel(c)
         end
         
         % Color the patches if possible
-        if numel(agents) >= i && agents{i}.currentValue ~= 0
-            obj.patches(i).FaceColor = obj.colors{agents{i}.currentValue};
+        if numel(agents) >= i && agents{i}.getVariable().isSet()
+            value = agents{i}.getVariable().getValue();
+            obj.patches(i).FaceColor = obj.colors{value};
         end
     end
 end

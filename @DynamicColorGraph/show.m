@@ -25,11 +25,12 @@ for i = 1:numel(c)
         else
             % Draw the voronoi completely
             obj.patches(i) = patch(v(c{i},1), v(c{i},2), 'white', 'Parent', obj.axesHandle);
+            obj.text(i) = text(centers(i,1), centers(i,2), sprintf('%d', i));
         end
         
         % Color the patches if possible
         if numel(agents) >= i && agents{i}.getVariable().isSet()
-            value = agents{i}.getVariable().getValue();
+            value = double(agents{i}.getVariable().getValue());
             obj.patches(i).FaceColor = obj.colors{value};
         end
     end

@@ -9,6 +9,7 @@ classdef DynamicColorGraph < handle
         figureHandle@matlab.ui.Figure scalar;
         axesHandle@matlab.graphics.axis.Axes scalar;
         patches@matlab.graphics.primitive.Patch;
+        text@matlab.graphics.primitive.Text;
         
         % The data
         maxsize@double scalar;
@@ -17,19 +18,14 @@ classdef DynamicColorGraph < handle
         variables@containers.Map scalar;
         
         % The agents
-        agentType@char matrix = 'nl.coenvl.sam.impl.SFBAgent';
         agents@containers.Map scalar;
         agentNames@cell;
     end
     
     methods (Access = public)
-        function obj = DynamicColorGraph(n, maxsize, agentType)
+        function obj = DynamicColorGraph(n, maxsize)
             if nargin < 2
                 maxsize = 10;
-            end
-            
-            if nargin > 2
-                obj.agentType = agentType;
             end
             
             % Initialize variables
@@ -39,36 +35,15 @@ classdef DynamicColorGraph < handle
             obj.variables = containers.Map('KeyType','char','ValueType','any');
             obj.agents = containers.Map('KeyType','char','ValueType','any');
             obj.agentNames = cell(1,n);
-            
-            % create Agents that are assigned to the nodes
-            for i = 1:n
-                % Create names
-                agentName = sprintf('agent%03d', i);
-                obj.agentNames{i} = agentName;
-                obj.nodeNames{i} = sprintf('node%03d', i);
-                
-                % Create Java Objects
-                agent = feval(obj.agentType, agentName);
-                var = nl.coenvl.sam.IntegerVariable(java.lang.Integer(1), ...
-                    java.lang.Integer(numel(DynamicColorGraph.colors)), ...
-                    obj.nodeNames{i});
-                agent.assignVariable(var);
-                
-                % Store data
-                obj.variables(obj.nodeNames{i}) = var;
-                obj.agents(agentName) = agent;
-            end
         end
         
         function varName = variableName(obj, i)
             varName = obj.nodeNames{i};
         end
-        
-%         function numVars = numVars(obj)
-%             numVars = numel(obj.agentNames);
-%         end
-        
+                
         %% Functions defined in other files
+        addAgents(obj, agentType);
+        
         c = neqConstraints(obj);
         
         % export the problem as a FRODO xml file
@@ -88,6 +63,9 @@ classdef DynamicColorGraph < handle
         
         % Get the current coloring
         [a,c] = getAssignments(obj);
+        
+        % Get the cost - the amount of matching coloroed neighbors
+        cost = getCost(obj);
     end
     
     methods (Access = private)

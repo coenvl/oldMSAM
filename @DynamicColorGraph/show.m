@@ -1,5 +1,5 @@
-function show(obj)
-if isempty(obj.figureHandle) || ~obj.figureHandle.isvalid
+function h = show(obj)
+if isempty(obj.figureHandle) || ~ishandle(obj.figureHandle)
     obj.createFigure();
 end
 
@@ -18,10 +18,10 @@ agents = obj.agents.values;
 % Draw the patches in the voronoi
 for i = 1:numel(c)
     if ~any(isinf(v(c{i},:))) % This still seems weird, aren't I sure that the invalid patches come last?
-        if numel(obj.patches) >= i && obj.patches(i).isvalid
+        if numel(obj.patches) >= i && ishandle(obj.patches(i))
             % Update the patch
-            obj.patches(i).Faces = 1:numel(c{i});
-            obj.patches(i).Vertices = v(c{i},:);
+            set(obj.patches(i), 'Faces', 1:numel(c{i}));
+            set(obj.patches(i), 'Vertices', v(c{i},:));
         else
             % Draw the voronoi completely
             obj.patches(i) = patch(v(c{i},1), v(c{i},2), 'white', 'Parent', obj.axesHandle);
@@ -31,9 +31,11 @@ for i = 1:numel(c)
         % Color the patches if possible
         if numel(agents) >= i && agents{i}.getVariable().isSet()
             value = double(agents{i}.getVariable().getValue());
-            obj.patches(i).FaceColor = obj.colors{value};
+            set(obj.patches(i), 'FaceColor', obj.colors{value});
         end
     end
 end
+
+h = obj.figureHandle;
 
 end

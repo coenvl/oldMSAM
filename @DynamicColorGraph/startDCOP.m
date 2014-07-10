@@ -23,7 +23,7 @@ if isa(agent, 'nl.coenvl.sam.agents.OrderedAgent')
         %    parent.addChild(obj.agents(obj.agentNames{j}));
         %end
     end
-
+    
     for i = 2:nAgents
         child = obj.agents(obj.agentNames{i});
         child.setParent(obj.agents(obj.agentNames{i-1}));
@@ -62,9 +62,12 @@ agent = obj.agents(obj.agentNames{1});
 if isa(agent, 'nl.coenvl.sam.agents.CooperativeAgent')
     msg = nl.coenvl.sam.messages.HashMessage('GreedyCooperativeSolver:PickAVar');
     agent.push(msg);
+elseif isa(agent, 'nl.coenvl.sam.agents.UniqueFirstCooperativeAgent')
+    msg = nl.coenvl.sam.messages.HashMessage('UniqueFirstCooperativeSolver:PickAVar');
+    agent.push(msg);
 elseif isa(agent, 'nl.coenvl.sam.agents.LocalGreedyAgent')
-   msg = nl.coenvl.sam.messages.HashMessage('GreedyLocalSolver:AssignVariable'); 
-   agent.push(msg);
+    msg = nl.coenvl.sam.messages.HashMessage('GreedyLocalSolver:AssignVariable');
+    agent.push(msg);
 end
 
 obj.show;

@@ -1,7 +1,10 @@
 function startup
 
 %% First the matlab path for local environment
-addpath util;
+rootpath = fileparts(mfilename('fullpath'));
+
+addpath(rootpath);
+addpath(fullfile(rootpath, 'util'));
 
 %% Search for the Frodo2 framework, and add it
 
@@ -9,7 +12,7 @@ addpath util;
 switch getenv('computername')
     case 'PC-13613'
         FRODOpath = 'C:\Develop\java\frodo2';
-        JSAMpath = 'C:\Develop\java\jSAM';
+        JSAMpath = 'C:\Develop\git\jSAM';
     otherwise
         error('Please make sure the computer name is added to %s', mfilename)
 end

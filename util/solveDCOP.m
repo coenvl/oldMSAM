@@ -2,16 +2,16 @@ function solution = solveDCOP(problemFile, solverType, agentFile, timeout)
 %SOLVE Summary of this function goes here
 %   Detailed explanation goes here
 
-if nargin < 2
+if nargin < 1
     problemFile = fullfile(pwd, 'temp.xml');
 end
 
-if nargin < 3
+if nargin < 2
    solverType = 'synchbb.SynchBBsolver';
    %solverType = 'afb.AFBsolver';
 end
 
-if nargin < 4 || isempty(agentFile)
+if nargin < 3 || isempty(agentFile)
     agentFile = [];
 elseif ~exist(agentFile, 'file')
     error('SolveDCOP:InexistentAgentFile', 'File %s does not exist', agentFile)
@@ -19,7 +19,7 @@ else
     agentFile = ['''' agentFile ''''];
 end
 
-if nargin < 5
+if nargin < 4
     timeout = [];
 end
 

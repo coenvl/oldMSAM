@@ -4,7 +4,14 @@ classdef DynamicColorGraph < handle
         colors@cell matrix = {[1 0 0] [0 1 0] [0 0 1]}; % [1 1 0] [0 1 1]};
     end
     
-    properties (Access = private)
+    properties(GetAccess = public, SetAccess = private)
+        sampleType = 'randomSample';
+%         sampleType = 'poissonSample';
+%         sampleType = 'honeyCombSample';
+%         sampleType = 'circleSample';
+    end
+    
+    properties (Access = public)
         % Handles to the graphics to quickly draw stuff
         figureHandle;
         axesHandle;
@@ -14,7 +21,7 @@ classdef DynamicColorGraph < handle
         % The data
         maxsize@double scalar;
         nodeData@double matrix;
-        nodeNames@cell;
+        varNames@cell;
         variables@containers.Map scalar;
         
         % The agents
@@ -30,17 +37,27 @@ classdef DynamicColorGraph < handle
             
             % Initialize variables
             obj.maxsize = maxsize;
-            obj.nodeData = maxsize .* rand(n, 2);
-%             obj.nodeData = poissonSample(maxsize, n);
+            obj.nodeData = feval(obj.sampleType, maxsize, n);
+            
 %             [a,b] = meshgrid(linspace(0,maxsize,sqrt(n)),linspace(0,maxsize,sqrt(n)));
 %             obj.nodeData = [a(:) b(:)];
 
             realN = size(obj.nodeData, 1);
             
-            obj.nodeNames = cell(1,realN);
+            obj.varNames = cell(1,realN);
             obj.variables = containers.Map('KeyType','char','ValueType','any');
             obj.agents = containers.Map('KeyType','char','ValueType','any');
             obj.agentNames = cell(1,realN);
+            
+            for i = 1:realN
+                varName = sprintf('node%03d', i);
+                obj.agentNames{i} = sprintf('agent%03d', i);
+                obj.varNames{i} = varName; 
+                
+                obj.variables(varName) = nl.coenvl.sam.variables.IntegerVariable(1, ...
+                    numel(DynamicColorGraph.colors), ...
+                    varName);
+            end
             
             nl.coenvl.sam.ExperimentControl.ResetExperiment();
         end
@@ -68,6 +85,9 @@ classdef DynamicColorGraph < handle
         
         % Solve using SAM
         startDCOP(obj);
+        
+        % Specially for CFL
+        tickCFL(obj);
         
         % Get the current coloring
         [a,c] = getAssignments(obj);

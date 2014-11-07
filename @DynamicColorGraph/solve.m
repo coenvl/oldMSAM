@@ -7,11 +7,12 @@ if nargin < 2
 end
 
 if nargin < 3
-    %solverType = 'asodpop.ASODPOPsolver';
-    %solverType = 'dpop.DPOPsolver';
-    %solverType = 'adopt.ADOPTsolver'; % SOOO slow
-    %solverType = 'synchbb.SynchBBsolver';
+%     solverType = 'asodpop.ASODPOPsolver';
+%     solverType = 'dpop.DPOPsolver';
+%     solverType = 'adopt.ADOPTsolver'; % SOOO slow
+%     solverType = 'synchbb.SynchBBsolver';
     solverType = 'afb.AFBsolver';
+%     solverType = 'maxsum.MaxSumSolver';
 end
 
 if nargin < 4
@@ -23,8 +24,8 @@ solution = solveDCOP(problemFile, solverType, [], timeout);
 assignments = solution.getAssignments();
 
 %Apply the solution
-for a = 1:numel(obj.nodeNames)
-    X = obj.nodeNames{a};
+for a = 1:numel(obj.varNames)
+    X = obj.varNames{a};
     value = assignments.get(X).intValue;
     obj.variables(X).setValue(uint32(value));
 end

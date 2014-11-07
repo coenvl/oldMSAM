@@ -8,7 +8,7 @@ nAgents = numel(obj.agentNames);
 % Reset all agents;
 for i = 1:nAgents
     agent = obj.agents(obj.agentNames{i});
-    var = obj.variables(obj.nodeNames{i});
+    var = obj.variables(obj.varNames{i});
     var.clear();
     agent.reset();
 end
@@ -58,14 +58,16 @@ for i = numel(obj.agentNames):-1:1
     agent.init();
 end
 
-agent = obj.agents(obj.agentNames{1});
+%% Only for local communicating agents, get one started
+n = ceil(rand * numel(obj.agentNames));
+agent = obj.agents(obj.agentNames{n});
 if isa(agent, 'nl.coenvl.sam.agents.CooperativeAgent')
     msg = nl.coenvl.sam.messages.HashMessage('GreedyCooperativeSolver:PickAVar');
     agent.push(msg);
 elseif isa(agent, 'nl.coenvl.sam.agents.UniqueFirstCooperativeAgent')
     msg = nl.coenvl.sam.messages.HashMessage('UniqueFirstCooperativeSolver:PickAVar');
     agent.push(msg);
-elseif isa(agent, 'nl.coenvl.sam.agents.LocalGreedyAgent')
+elseif isa(agent, 'nl.coenvl.sam.agents.LocalGreedyAgent') || isa(agent, 'nl.coenvl.sam.agents.SynchronousGreedyAgent')
     msg = nl.coenvl.sam.messages.HashMessage('GreedyLocalSolver:AssignVariable');
     agent.push(msg);
 end

@@ -23,29 +23,34 @@ fid = fopen(filename, 'w+');
 xsdScheme = fullfile(getenv('path_frodo'), 'src\frodo2\algorithms\XCSPschema.xsd');
 
 % Print the header
-fprintf(fid, ['<instance xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n' ...
-              '          xsi:noNamespaceSchemaLocation="%s">\n' ...
-              '  <presentation name="%s" maxConstraintArity="2"\n' ...
-              '                maximize="false" format="XCSP 2.1_FRODO" />\n\n'], xsdScheme, options.name);
+fprintf(fid, '<?xml version="1.0" encoding="UTF-8"?>\n');
+fprintf(fid, '<instance xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="%s">\n', xsdScheme);
 
+% Print info about the problem
+fprintf(fid, '  <presentation name="%s" maxConstraintArity="2" maximize="false" format="XCSP 2.1_FRODO">\n', options.name);
+fprintf(fid, '    <stats name="number of nodes">%d</stats>\n', nAgents);
+fprintf(fid, '    <stats name="number of colors">%d</stats>\n', numel(obj.colors));
+fprintf(fid, '    <stats name="number of uncontrollable nodes">0</stats>\n');
+fprintf(fid, '  </presentation>\n');
+          
 % Define the agents
 fprintf(fid, '  <agents nbAgents="%d">\n', nAgents);
 for i = 1:nAgents
     fprintf(fid, '    <agent name="%s" />\n', obj.agentNames{i});
 end
-fprintf(fid, '  </agents>\n\n');
+fprintf(fid, '  </agents>\n');
 
 % Export the domain
 fprintf(fid, '  <domains nbDomains="1">\n');
 fprintf(fid, '    <domain name="colors" nbValues="%d">1..%d</domain>\n', numel(obj.colors), numel(obj.colors));
-fprintf(fid, '  </domains>\n\n');
+fprintf(fid, '  </domains>\n');
 
 % Assign the variables
 fprintf(fid, '  <variables nbVariables="%d">\n', nAgents);
 for i = 1:nAgents
-    fprintf(fid, '    <variable name="%s" domain="colors" agent="%s"/>\n', obj.nodeNames{i}, obj.agentNames{i});
+    fprintf(fid, '    <variable name="%s" domain="colors" agent="%s"/>\n', obj.varNames{i}, obj.agentNames{i});
 end
-fprintf(fid, '  </variables>\n\n');
+fprintf(fid, '  </variables>\n');
 
 % Define relations
 fprintf(fid, '  <relations nbRelations="1">\n');
@@ -53,13 +58,13 @@ fprintf(fid, '    <relation name="NEQ" arity="2" nbTuples="%d" semantics="soft" 
 ineqstr = sprintf('%d %d|', reshape(repmat(1:numel(obj.colors),2,1), 1, []));
 fprintf(fid, '      1: %s\n', ineqstr(1:end-1));
 fprintf(fid, '    </relation>\n');
-fprintf(fid, '  </relations>\n\n');
+fprintf(fid, '  </relations>\n');
 
 % Set the constraints
 fprintf(fid, '  <constraints nbConstraints="%d">\n', size(neqConstraints, 1));
 for i = 1:size(neqConstraints, 1)
-    X = obj.nodeNames{neqConstraints(i, 1)};
-    Y = obj.nodeNames{neqConstraints(i, 2)};
+    X = obj.varNames{neqConstraints(i, 1)};
+    Y = obj.varNames{neqConstraints(i, 2)};
     fprintf(fid, '    <constraint name="%s_AND_%s_have_different_colors" arity="2" scope="%s %s" reference="NEQ"/>\n', X, Y, X, Y);
 end
 fprintf(fid, '  </constraints>\n');

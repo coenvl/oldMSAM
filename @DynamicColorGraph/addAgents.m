@@ -15,21 +15,17 @@ n = numel(obj.agentNames);
 % create Agents that are assigned to the nodes
 for i = 1:n
     % Create names
-    agentName = sprintf('agent%03d', i);
-    obj.agentNames{i} = agentName;
-    obj.nodeNames{i} = sprintf('node%03d', i);
+    agentName = obj.agentNames{i};
 
     % Create Java Objects
-    var = nl.coenvl.sam.variables.IntegerVariable(1, ...
-        numel(DynamicColorGraph.colors), ...
-        obj.nodeNames{i});
+    var = obj.variables(obj.varNames{i});
+    var.clear();
     agent = feval(agentType, agentName, var);
 
     % Store data
-    obj.variables(obj.nodeNames{i}) = var;
+    obj.variables(obj.varNames{i}) = var;
     obj.agents(agentName) = agent;
 end
-
 
 end
 

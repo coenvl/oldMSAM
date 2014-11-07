@@ -13,7 +13,8 @@ p_ext = [centers; val val; val -val; -val -val; -val val];
 % just the edges.
 [v,c] = voronoin([p_ext(:,1) p_ext(:,2)]);
 
-agents = obj.agents.values;
+% agents = obj.agents.values;
+variables = obj.variables.values;
 
 % Draw the patches in the voronoi
 for i = 1:numel(c)
@@ -25,12 +26,12 @@ for i = 1:numel(c)
         else
             % Draw the voronoi completely
             obj.patches(i) = patch(v(c{i},1), v(c{i},2), 'white', 'Parent', obj.axesHandle);
-            obj.text(i) = text(centers(i,1), centers(i,2), sprintf('%d', i));
+            obj.text(i) = text(centers(i,1), centers(i,2), sprintf('%d', i), 'HorizontalAlignment', 'center');
         end
         
         % Color the patches if possible
-        if numel(agents) >= i && agents{i}.getVariable().isSet()
-            value = double(agents{i}.getVariable().getValue());
+        if numel(variables) >= i && variables{i}.isSet()
+            value = double(variables{i}.getValue());
             set(obj.patches(i), 'FaceColor', obj.colors{value});
         end
     end
